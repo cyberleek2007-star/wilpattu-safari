@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#07100b"><title>Safari Experiences | Wilpattu by Elishah Rides</title><link rel="stylesheet" href="styles.css"></head><body class="">
+<header class="nav" id="nav"><div class="container nav-row">
+<a class="brand" href="index.html"><img src="assets/elishah-rides-logo.png" alt="Elishah Rides"><span><strong>WILPATTU</strong><small>A safari experience by Elishah Rides</small></span></a>
+<button class="menu" id="menu">☰</button>
+<nav class="nav-links" id="navLinks">
+<a href="index.html">Home</a><a href="packages.html">Packages</a><a href="wildlife.html">Wildlife</a><a href="safari-experiences.html">Safari Experiences</a><a href="gallery.html">Gallery</a><a href="about.html">About</a><a class="nav-cta" href="booking.html">Book Safari</a>
+</nav></div></header>
+
+<section class="page-hero"><div class="container reveal visible"><div class="kicker">Your real journey</div><h1>Safari footage.<br><em>Guest memories.</em></h1><p>This is the dedicated space for your own safari videos, guest stories and real footage from Wilpattu.</p></div></section>
+<section class="section"><div class="container"><div class="section-head reveal"><div><div class="kicker">Video stories</div><h2>From the track to the screen.</h2></div><p>Once your own safari videos are ready, we can place them here as cinematic full-width stories and short reels.</p></div>
+<div class="cards"><article class="card reveal"><div class="card-img"><img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Beauty%20of%20Wilpattu%20National%20Park.jpg" alt="Misty morning safari in Wilpattu"></div><div class="card-body"><span class="tag">Video slot · 01</span><h3>Morning in Wilpattu</h3><p>Your first video can become the opening cinematic story here.</p></div></article><article class="card reveal"><div class="card-img"><img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Sri%20Lankan%20Leopard%20-%20Wilpattu%20National%20Park%2C%20Sri%20Lanka.jpg" alt="Leopard crossing a Wilpattu track"></div><div class="card-body"><span class="tag">Video slot · 02</span><h3>Leopard Country</h3><p>Use real safari footage to show guests what an encounter feels like.</p></div></article><article class="card reveal"><div class="card-img"><img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Beauty%20of%20Wilpattu%20National%20Park.jpg" alt="Wilpattu landscape"></div><div class="card-body"><span class="tag">Video slot · 03</span><h3>Beyond the Villu</h3><p>Landscape, water, forest and the quiet moments between sightings.</p></div></article></div>
+<div class="note reveal" style="margin-top:28px"><strong>Next media step:</strong> upload your own safari videos and we can turn these slots into actual video players without changing the design.</div></div></section>
+
+<section class="section alt"><div class="container">
+<div class="section-head"><div><div class="kicker">Real footage</div><h2>Watch Wilpattu in motion.</h2></div><p>Videos published from the admin media studio appear here.</p></div>
+<div id="videoLibrary" class="cards"></div>
+</div></section>
+<section class="video-band"><div class="video-content reveal"><div class="play">▶</div><div class="kicker">Real footage belongs here</div><h2>Let the journey speak for itself.</h2><p>The final version will showcase your own safari footage with cinematic titles, location notes and guest moments.</p><a class="btn primary" href="booking.html">Book your safari →</a></div></section>
+
+<footer class="footer"><div class="container">
+<div class="footer-grid">
+<div><div class="logo-credit"><img src="assets/elishah-rides-logo.png" alt="Elishah Rides logo"><div><h4>WILPATTU</h4><p>Premium Wilpattu safari experiences by Elishah Rides.</p></div></div></div>
+<div><h4>Explore</h4><p><a href="packages.html">Safari Packages</a></p><p><a href="wildlife.html">Wildlife</a></p><p><a href="safari-experiences.html">Safari Experiences</a></p><p><a href="gallery.html">Gallery</a></p></div>
+<div><h4>Plan your safari</h4><p>Anuradhapura hotel pickup</p><p>Wilpattu National Park</p><p><a href="booking.html">Request a booking</a></p><p><a href="https://wa.me/94773523762">WhatsApp +94 77 352 3762</a></p></div>
+</div>
+<div class="footer-bottom"><span>© 2026 Elishah Rides · Wilpattu Safari Experiences</span><a href="admin.html">Admin</a></div>
+</div></footer>
+<script src="script.js"></script>
+<script src="media.js"></script>
+<script>
+(async()=>{const box=document.getElementById('videoLibrary');if(!box)return;const rows=(await allMedia('media')).filter(x=>x.status==='published'&&x.kind==='video');box.innerHTML=rows.length?rows.map(x=>`<article class="card reveal visible"><div class="card-img" style="height:auto;background:#000"><video controls preload="metadata" src="${x.src}" style="width:100%;display:block;aspect-ratio:16/9;object-fit:cover"></video></div><div class="card-body"><span class="tag">Safari video</span><h3>${safeText(x.title)}</h3><p>Real Wilpattu footage · Elishah Rides.</p></div></article>`).join(''):'<div class="note" style="grid-column:1/-1">No safari videos published yet.</div>'})();
+</script></body></html>
