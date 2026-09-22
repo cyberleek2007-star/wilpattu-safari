@@ -1,4 +1,6 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#07100b"><title>Wilpattu Gallery | Wilpattu by Elishah Rides</title><link rel="stylesheet" href="styles.css"></head><body class="">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#07100b"><title>Wilpattu Gallery | Wilpattu by Elishah Rides</title><link rel="stylesheet" href="styles.css"><style>
+.star-rating{display:flex;gap:6px;align-items:center}.star-btn{border:0;background:none;color:#5d625d;font-size:30px;line-height:1;cursor:pointer;padding:0 2px;transition:.2s}.star-btn:hover,.star-btn.selected{color:#c7a45b;transform:translateY(-1px)}.story-stars{letter-spacing:2px;margin:4px 0 10px;color:#5d625d}.story-stars .on{color:#c7a45b}.success.error{border-color:rgba(255,110,100,.35);color:#ffaaa2}</style>
+</head><body class="">
 <header class="nav" id="nav"><div class="container nav-row">
 <a class="brand" href="index.html"><img src="assets/elishah-rides-logo.png" alt="Elishah Rides"><span><strong>WILPATTU</strong><small>A safari experience by Elishah Rides</small></span></a>
 <button class="menu" id="menu">☰</button>
@@ -45,12 +47,57 @@
 <div class="footer-bottom"><span>© 2026 Elishah Rides · Wilpattu Safari Experiences</span><a href="admin.html">Admin</a></div>
 </div></footer>
 <script src="script.js"></script>
-<script src="media.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <script>
 (async()=>{
- const form=document.getElementById('reviewForm'),box=document.getElementById('approvedReviews');if(!form)return;
- async function render(){const rows=(await allMedia('reviews')).filter(x=>x.status==='approved').sort((a,b)=>b.createdAt.localeCompare(a.createdAt));box.innerHTML=rows.length?rows.map(x=>`<article class="card reveal visible">${x.photo?`<div class="card-img"><img src="${x.photo}" alt="Traveller photo"></div>`:''}<div class="card-body"><span class="tag">Traveller story</span><h3>${safeText(x.name)}</h3><p>${safeText(x.review)}</p></div></article>`).join(''):'<div class="note" style="grid-column:1/-1">No traveller stories published yet.</div>'}
- form.onsubmit=async e=>{e.preventDefault();const f=document.getElementById('reviewPhoto').files[0];const item={name:document.getElementById('reviewName').value.trim(),review:document.getElementById('reviewText').value.trim(),status:'pending',createdAt:new Date().toISOString()};if(f)item.photo=await readFileData(f);await putMedia('reviews',item);document.getElementById('reviewSuccess').style.display='block';document.getElementById('reviewSuccess').textContent='Thank you. Your story was submitted for review.';form.reset()};
- render();
+  const form=document.getElementById('reviewForm');
+  const box=document.getElementById('approvedReviews');
+  if(!form || !window.supabaseClient) return;
+  const sb=window.supabaseClient;
+  const photoInput=document.getElementById('reviewPhoto');
+  const ratingWrap=document.createElement('div');
+  ratingWrap.className='field full';
+  ratingWrap.innerHTML='<label>Your rating</label><div class="star-rating" role="radiogroup" aria-label="Rating from 1 to 5">'+[1,2,3,4,5].map(n=>`<button type="button" class="star-btn" data-rating="${n}" aria-label="${n} star${n>1?'s':''}">★</button>`).join('')+'</div><input type="hidden" id="reviewRating" value="5">';
+  form.querySelector('.form-grid').insertBefore(ratingWrap, form.querySelector('.field.full'));
+  const rating=document.getElementById('reviewRating');
+  function paintRating(){ratingWrap.querySelectorAll('.star-btn').forEach(b=>b.classList.toggle('selected',Number(b.dataset.rating)<=Number(rating.value)))}
+  ratingWrap.querySelectorAll('.star-btn').forEach(b=>b.addEventListener('click',()=>{rating.value=b.dataset.rating;paintRating()}));
+  paintRating();
+
+  function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+  function stars(n){return '★★★★★'.split('').map((x,i)=>`<span class="${i<Number(n)?'on':''}">${x}</span>`).join('')}
+  async function render(){
+    const {data,error}=await sb.from('traveller_stories').select('id,name,rating,comment,photo_path,created_at').eq('status','approved').order('created_at',{ascending:false});
+    if(error){console.error(error);box.innerHTML='<div class="note" style="grid-column:1/-1">Traveller stories are temporarily unavailable.</div>';return}
+    box.innerHTML=data?.length?data.map(x=>{
+      const photo=x.photo_path?sb.storage.from('traveller-stories').getPublicUrl(x.photo_path).data.publicUrl:'';
+      return `<article class="card reveal visible">${photo?`<div class="card-img"><img src="${esc(photo)}" alt="Traveller photo"></div>`:''}<div class="card-body"><span class="tag">Traveller story</span><div class="story-stars">${stars(x.rating)}</div><h3>${esc(x.name)}</h3><p>${esc(x.comment)}</p></div></article>`
+    }).join(''):'<div class="note" style="grid-column:1/-1">No traveller stories published yet. Be the first to share your Wilpattu memory.</div>';
+  }
+  form.onsubmit=async e=>{
+    e.preventDefault();
+    const success=document.getElementById('reviewSuccess');
+    success.style.display='none';
+    const name=document.getElementById('reviewName').value.trim();
+    const comment=document.getElementById('reviewText').value.trim();
+    const ratingValue=Math.max(1,Math.min(5,Number(rating.value)||5));
+    const file=photoInput.files[0];
+    let photoPath=null;
+    try{
+      if(file){
+        if(file.size>6*1024*1024) throw new Error('Please keep the photo under 6 MB.');
+        const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+        photoPath=`pending/${crypto.randomUUID()}.${ext}`;
+        const up=await sb.storage.from('traveller-stories').upload(photoPath,file,{cacheControl:'3600',upsert:false,contentType:file.type||'image/jpeg'});
+        if(up.error) throw up.error;
+      }
+      const ins=await sb.from('traveller_stories').insert({name,rating:ratingValue,comment,photo_path:photoPath,status:'pending'});
+      if(ins.error) throw ins.error;
+      form.reset();rating.value='5';paintRating();
+      success.style.display='block';success.textContent='Thank you. Your story and photo were submitted for review.';
+    }catch(err){console.error(err);success.style.display='block';success.className='success error';success.textContent=err.message||'Unable to submit your story. Please try again.'}
+  };
+  render();
 })();
 </script></body></html>

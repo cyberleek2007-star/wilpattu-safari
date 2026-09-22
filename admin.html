@@ -1,251 +1,59 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Wilpattu Admin | Elishah Rides</title>
-<style>
-:root{
-  --bg:#050806;--panel:#0a120d;--panel2:#0e1812;--line:rgba(205,170,93,.18);
-  --gold:#c9a55b;--gold2:#e6c77c;--text:#f4f0e7;--muted:#94a097;
-  --green:#8fba92;--red:#d28c84;--blue:#8faecc;--shadow:0 24px 70px rgba(0,0,0,.38)
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wilpattu Admin | Elishah Rides</title><link rel="stylesheet" href="styles.css"><style>
+.admin-main{padding:40px 0 80px}.admin-login{max-width:560px;margin:90px auto;background:linear-gradient(145deg,#0f1e15,#09120d);border:1px solid var(--line);border-radius:28px;padding:36px;box-shadow:var(--shadow)}.admin-layout{display:grid;grid-template-columns:230px 1fr;gap:22px}.admin-nav{background:#09130d;border:1px solid var(--line);border-radius:22px;padding:12px;height:max-content;position:sticky;top:25px}.admin-nav button{width:100%;padding:13px 15px;background:none;border:0;color:#d8d5cb;text-align:left;border-radius:12px;cursor:pointer}.admin-nav button:hover,.admin-nav button.active{background:rgba(199,164,91,.13);color:var(--gold2)}.admin-card{background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.015));border:1px solid var(--line);border-radius:22px;padding:25px;margin-bottom:18px}.admin-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.admin-stat{background:#09130d;border:1px solid var(--line);border-radius:17px;padding:20px}.admin-stat strong{display:block;font:500 32px "Playfair Display",serif;color:var(--gold2)}.admin-stat span{font-size:11px;color:var(--muted)}.media-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.media-item{background:#09130d;border:1px solid var(--line);border-radius:16px;padding:14px}.media-item video{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px;background:#000}.review-row{display:grid;grid-template-columns:100px 1fr auto;gap:16px;align-items:center;padding:15px 0;border-top:1px solid var(--line)}.review-row img{width:100px;height:75px;object-fit:cover;border-radius:10px}.pill{display:inline-flex;padding:5px 9px;border-radius:999px;background:rgba(199,164,91,.12);color:var(--gold2);font-size:10px}.danger{border-color:rgba(255,110,100,.3)!important;color:#ffaaa2!important}@media(max-width:850px){.admin-layout{grid-template-columns:1fr}.admin-nav{position:static;display:grid;grid-template-columns:repeat(2,1fr)}.admin-stats{grid-template-columns:repeat(2,1fr)}.media-grid{grid-template-columns:1fr}.review-row{grid-template-columns:75px 1fr}.review-row .admin-actions{grid-column:1/-1}}
+</style></head><body class="admin"><div class="admin-top"><div class="container nav-row"><div class="brand"><img src="assets/elishah-rides-logo.png" alt="Elishah Rides"><span><strong>WILPATTU ADMIN</strong><small>ELISHAH RIDES · COMMAND CENTER</small></span></div><a class="btn secondary" href="index.html">View website</a></div></div>
+<div class="container admin-main">
+<div id="login" class="admin-login"><div class="kicker">Secure admin access</div><h2>Safari command center.</h2><p style="color:var(--muted)">Sign in to manage bookings, customer stories and safari media.</p><div class="field"><label>Email</label><input id="adminEmail" type="email" autocomplete="username" placeholder="admin@example.com" required></div><div class="field" style="margin-top:12px"><label>Password</label><input id="adminPassword" type="password" autocomplete="current-password" placeholder="Enter password" required></div><button class="btn primary" id="loginBtn" style="margin-top:15px">Enter dashboard →</button><p id="loginMsg" style="color:#ffb0a8"></p></div>
+<div id="dashboard" style="display:none"><div class="admin-layout"><aside class="admin-nav">
+<button class="active" onclick="go(this,overview)">Dashboard</button><button onclick="go(this,bookings)">Bookings</button><button onclick="go(this,reviews)">Customer stories</button><button onclick="go(this,videos)">Videos / Media</button><button onclick="go(this,packages)">Packages</button><button onclick="logout()">Sign out</button>
+</aside><main id="content"></main></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script src="media.js"></script><script>
+const c=document.getElementById('content'),esc=safeText;
+const packs=[['Half-Safari (Morning)','6:00 AM – 10:00 AM','4 hours'],['Half-Safari (Evening)','2:00 PM – 6:00 PM','4 hours'],['Full Safari','Morning – Evening','Full safari']];
+function bd(){return JSON.parse(localStorage.getItem('wilpattuBookings')||'[]')}
+function save(a){localStorage.setItem('wilpattuBookings',JSON.stringify(a))}
+function go(b,f){document.querySelectorAll('.admin-nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');f()}
+function overview(){const a=bd(),p=a.filter(x=>x.status==='Pending').length,q=a.filter(x=>x.status==='Confirmed').length;c.innerHTML=`<div class="admin-card"><div class="kicker">Command center</div><h2>Everything clear at a glance.</h2><div class="admin-stats"><div class="admin-stat"><strong>${a.length}</strong><span>Total bookings</span></div><div class="admin-stat"><strong>${p}</strong><span>Needs attention</span></div><div class="admin-stat"><strong>${q}</strong><span>Confirmed</span></div><div class="admin-stat"><strong>3</strong><span>Packages</span></div></div></div><div class="admin-card"><div class="kicker">Quick actions</div><div class="admin-actions"><button class="small-btn" onclick="bookings()">Open bookings</button><button class="small-btn" onclick="reviews()">Review customer stories</button><button class="small-btn" onclick="videos()">Upload safari video</button></div></div>`}
+function bookings(){const a=bd();c.innerHTML='<div class="admin-card"><div class="kicker">Booking management</div><h2>Safari orders</h2><p style="color:var(--muted)">Accept, complete, message or delete each request.</p></div>'+(a.length?a.map(x=>`<div class="admin-card"><div class="section-head"><div><span class="pill">${esc(x.status)}</span><h3>${esc(x.id)}</h3><p>${esc(x.name)} · ${esc(x.whatsapp)}</p></div><div class="admin-actions"><button class="small-btn" onclick="status('${esc(x.id)}','Confirmed')">✓ Accept</button><button class="small-btn" onclick="status('${esc(x.id)}','Completed')">Complete</button><button class="small-btn danger" onclick="removeBooking('${esc(x.id)}')">Delete</button></div></div><div class="simple-list-row"><span><b>${esc(x.package)}</b><br>${esc(x.date)} · ${esc(x.guests)} guest(s)</span><span>${esc(x.pickup)}</span></div>${x.notes?`<p style="color:var(--muted)">Notes: ${esc(x.notes)}</p>`:''}<a class="btn secondary" target="_blank" href="https://wa.me/${String(x.whatsapp).replace(/\\D/g,'')}">WhatsApp guest →</a></div>`).join(''):'<div class="note">No booking requests yet.</div>');}
+function status(id,s){const a=bd(),x=a.find(v=>v.id===id);if(x){x.status=s;save(a);bookings()}}
+function removeBooking(id){if(confirm('Delete this booking request?')){save(bd().filter(x=>x.id!==id));bookings()}}
+async function reviews(){
+  if(!window.supabaseClient){c.innerHTML='<div class="note">Supabase is not connected.</div>';return}
+  const sb=window.supabaseClient;
+  const {data,error}=await sb.from('traveller_stories').select('id,name,rating,comment,photo_path,status,created_at').order('created_at',{ascending:false});
+  if(error){c.innerHTML=`<div class="admin-card"><h2>Customer stories</h2><p class="note">${esc(error.message)}</p></div>`;return}
+  const a=data||[];
+  c.innerHTML=`<div class="admin-card"><div class="kicker">Traveller moderation</div><h2>Customer stories</h2><p style="color:var(--muted)">Review guest ratings, comments and photos before they appear publicly.</p>${a.length?a.map(x=>{const photo=x.photo_path?sb.storage.from('traveller-stories').getPublicUrl(x.photo_path).data.publicUrl:'';return `<div class="review-row">${photo?`<img src="${esc(photo)}" alt="Traveller photo">`:'<div class="note">No photo</div>'}<div><b>${esc(x.name)}</b><div style="color:var(--gold2);letter-spacing:2px">${'★★★★★'.split('').map((_,i)=>i<Number(x.rating)?'★':'☆').join('')}</div><p style="color:var(--muted)">${esc(x.comment)}</p><span class="pill">${esc(x.status)}</span></div><div class="admin-actions">${x.status!=='approved'?`<button class="small-btn" onclick="reviewStatus('${x.id}','approved')">✓ Accept</button>`:''}${x.status!=='rejected'?`<button class="small-btn" onclick="reviewStatus('${x.id}','rejected')">Reject</button>`:''}<button class="small-btn danger" onclick="reviewDelete('${x.id}')">Delete</button></div></div>`}).join(''):'<div class="note">No customer stories submitted yet.</div>'}</div>`;
 }
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:radial-gradient(circle at 70% 0%,#142018 0,#050806 35%,#030504 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-a{color:inherit;text-decoration:none}
-.topbar{height:82px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 34px;position:sticky;top:0;z-index:20;background:rgba(4,8,6,.92);backdrop-filter:blur(16px)}
-.brand{display:flex;align-items:center;gap:13px}.brand-mark{width:35px;height:35px;border:1px solid var(--line);border-radius:10px;display:grid;place-items:center;color:var(--gold2);background:#08100b}.brand b{display:block;font-size:14px;letter-spacing:.14em}.brand small{display:block;color:var(--gold);font-size:8px;letter-spacing:.2em;margin-top:3px}
-.top-actions{display:flex;gap:9px}
-.btn,.small-btn{border:1px solid var(--line);background:#0c1510;color:#ddd8cc;border-radius:12px;padding:11px 15px;font-size:12px;transition:.2s}
-.btn:hover,.small-btn:hover{border-color:rgba(230,199,124,.55);transform:translateY(-1px)}
-.btn.primary{background:linear-gradient(135deg,#b99145,#d7b96f);color:#17130a;border-color:transparent;font-weight:700}
-.btn.danger,.small-btn.danger{color:#efb0a8;border-color:rgba(210,140,132,.25)}
-.btn.success{color:#bfe2c2;border-color:rgba(143,186,146,.3)}
-.app{display:grid;grid-template-columns:235px 1fr;min-height:calc(100vh - 82px)}
-.sidebar{border-right:1px solid var(--line);padding:24px 13px;background:rgba(5,10,7,.72)}
-.nav-title{color:#657269;font-size:9px;letter-spacing:.18em;margin:9px 11px 10px}
-.nav button{width:100%;border:0;background:transparent;color:#aeb7af;text-align:left;padding:12px 13px;border-radius:12px;margin-bottom:3px}
-.nav button:hover,.nav button.active{background:rgba(201,165,91,.1);color:var(--gold2)}
-.nav button span{display:inline-block;width:23px;color:var(--gold)}
-.side-note{margin:25px 9px 0;padding:15px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025);font-size:10px;color:#7d897f;line-height:1.6}
-.main{padding:32px 34px 70px;max-width:1500px;width:100%}
-.head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:22px}.eyebrow{font-size:9px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}.head h1{font-family:Georgia,serif;font-weight:500;font-size:34px;margin:6px 0 7px}.head p{margin:0;color:var(--muted);font-size:13px}.actions{display:flex;gap:8px;flex-wrap:wrap}
-.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
-.stat,.card{border:1px solid var(--line);background:linear-gradient(145deg,rgba(18,30,22,.9),rgba(7,13,9,.92));border-radius:20px;box-shadow:var(--shadow)}
-.stat{padding:20px}.stat .num{font:500 31px Georgia,serif;color:var(--gold2);margin-top:7px}.stat .label{font-size:10px;color:#89958c;text-transform:uppercase;letter-spacing:.12em}
-.card{padding:22px;margin-top:17px}.card h2{font:500 21px Georgia,serif;margin:3px 0 7px}.card h3{font-size:15px;margin:3px 0 8px}.muted{color:var(--muted);font-size:12px;line-height:1.65}.kicker{font-size:9px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase}
-.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:14px}.quick button{padding:17px;text-align:left;border:1px solid var(--line);border-radius:15px;background:#09120d;color:#ddd8cc}.quick b{display:block;margin-bottom:5px}.quick small{color:#7f8b82}
-.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:15px 0}.toolbar input,.toolbar select,.field input,.field select,.field textarea{width:100%;background:#050b07;border:1px solid rgba(255,255,255,.08);border-radius:11px;color:#eee;padding:12px 13px;outline:none}.toolbar input{max-width:380px}.toolbar select{max-width:180px}
-.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:760px}.table th,.table td{text-align:left;padding:13px 11px;border-bottom:1px solid rgba(255,255,255,.055);font-size:11px;vertical-align:top}.table th{color:#79857c;font-size:9px;text-transform:uppercase;letter-spacing:.12em}.table td strong{font-size:12px}.pill{display:inline-flex;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.06);font-size:9px;color:#bbb}.pill.pending{color:#e6c77c;background:rgba(201,165,91,.1)}.pill.confirmed,.pill.approved,.pill.published{color:#bde0bf;background:rgba(143,186,146,.09)}.pill.completed{color:#a8c9e7;background:rgba(143,174,204,.09)}.pill.cancelled,.pill.rejected{color:#e6aaa2;background:rgba(210,140,132,.08)}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field label{display:block;color:#879289;font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 7px}.field.full{grid-column:1/-1}.field textarea{min-height:105px;resize:vertical}.form-actions{display:flex;gap:8px;margin-top:15px}.empty{padding:35px;text-align:center;color:#758078;border:1px dashed rgba(255,255,255,.09);border-radius:15px}
-.package{padding:20px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.025)}.package .time{color:var(--gold2);font-size:12px;margin:12px 0}.package ul{padding-left:17px;color:#aeb7af;font-size:11px;line-height:1.8}
-.story,.video{display:grid;grid-template-columns:100px 1fr auto;gap:15px;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06)}.story:last-child,.video:last-child{border-bottom:0}.story img,.video video{width:100px;height:76px;object-fit:cover;border-radius:11px;background:#030604}.video{grid-template-columns:150px 1fr auto}.video video{width:150px;height:90px}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:50;display:grid;place-items:center;padding:20px}.modal{width:min(720px,100%);max-height:90vh;overflow:auto;background:#0a120d;border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 40px 100px #000}.detailgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}.detail{padding:13px;border:1px solid rgba(255,255,255,.06);border-radius:12px}.detail small{display:block;color:#707b72;font-size:9px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}.detail strong{font-size:12px;font-weight:500}.toast{position:fixed;right:24px;bottom:24px;background:#111c15;border:1px solid var(--line);padding:13px 16px;border-radius:13px;color:#e8e2d6;z-index:80;box-shadow:var(--shadow)}
-@media(max-width:1000px){.app{grid-template-columns:1fr}.sidebar{position:static;border-right:0;border-bottom:1px solid var(--line);padding:10px}.nav{display:flex;overflow:auto}.nav-title,.side-note{display:none}.nav button{min-width:max-content}.main{padding:24px 16px}.grid4{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:1fr}.quick{grid-template-columns:1fr}}
-@media(max-width:650px){.topbar{padding:0 15px}.top-actions .small-btn{display:none}.grid4,.grid2{grid-template-columns:1fr}.head{align-items:flex-start;flex-direction:column}.form-grid,.detailgrid{grid-template-columns:1fr}.story,.video{grid-template-columns:70px 1fr}.story img,.video video{width:70px;height:60px}.story .actions,.video .actions{grid-column:1/-1}}
-</style>
-</head>
-<body>
-<header class="topbar">
-  <a class="brand" href="admin.html">
-    <div class="brand-mark">🐆</div>
-    <div><b>WILPATTU ADMIN</b><small>ELISHAH RIDES · COMMAND CENTER</small></div>
-  </a>
-  <div class="top-actions">
-    <a class="small-btn" href="index.html">View website ↗</a>
-    <button class="small-btn" id="refresh">↻ Refresh</button>
-  </div>
-</header>
-
-<div class="app">
-  <aside class="sidebar">
-    <div class="nav-title">COMMAND CENTER</div>
-    <nav class="nav" id="nav">
-      <button class="active" data-page="dashboard"><span>⌂</span>Dashboard</button>
-      <button data-page="bookings"><span>▣</span>Bookings</button>
-      <button data-page="stories"><span>♡</span>Customer Stories</button>
-      <button data-page="videos"><span>▶</span>Safari Videos</button>
-      <button data-page="packages"><span>◇</span>Packages</button>
-      <button data-page="settings"><span>⚙</span>Settings</button>
-    </nav>
-    <div class="side-note"><b>Wilpattu Safari</b><br>Premium safari command center for Elishah Rides.<br><br>Bookings, traveller stories, safari videos and package information in one place.</div>
-  </aside>
-
-  <main class="main" id="main"></main>
-</div>
-<div id="modal"></div>
-<div id="toast"></div>
-
-<script>
-const $=s=>document.querySelector(s);
-const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-const BOOK='wilpattuBookings';
-let current='dashboard';
-
-function toast(t){const el=$('#toast');el.innerHTML='<div class="toast">'+esc(t)+'</div>';setTimeout(()=>el.innerHTML='',2300)}
-function getBookings(){try{return JSON.parse(localStorage.getItem(BOOK)||'[]')}catch{return[]}}
-function saveBookings(a){localStorage.setItem(BOOK,JSON.stringify(a))}
-function statusPill(s){const x=String(s||'Pending').toLowerCase();return '<span class="pill '+esc(x)+'">'+esc(s||'Pending')+'</span>'}
-function wa(phone){const n=String(phone||'').replace(/\D/g,'');return n?`<a class="small-btn" target="_blank" href="https://wa.me/${n}">WhatsApp</a>`:''}
-
-function mediaDB(){
- return new Promise((resolve,reject)=>{
-  const r=indexedDB.open('wilpattu_media_v1',1);
-  r.onupgradeneeded=()=>{const db=r.result;if(!db.objectStoreNames.contains('reviews'))db.createObjectStore('reviews',{keyPath:'id',autoIncrement:true});if(!db.objectStoreNames.contains('media'))db.createObjectStore('media',{keyPath:'id',autoIncrement:true})};
-  r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);
- })
+async function reviewStatus(id,s){
+  const {error}=await window.supabaseClient.from('traveller_stories').update({status:s}).eq('id',id);
+  if(error){alert(error.message);return}
+  reviews();
 }
-async function mediaAll(store){
- try{const db=await mediaDB();return await new Promise((res,rej)=>{const q=db.transaction(store,'readonly').objectStore(store).getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>rej(q.error)})}catch{return[]}
+async function reviewDelete(id){
+  if(!confirm('Delete this customer story?'))return;
+  const {data}=await window.supabaseClient.from('traveller_stories').select('photo_path').eq('id',id).maybeSingle();
+  const {error}=await window.supabaseClient.from('traveller_stories').delete().eq('id',id);
+  if(error){alert(error.message);return}
+  if(data?.photo_path) await window.supabaseClient.storage.from('traveller-stories').remove([data.photo_path]);
+  reviews();
 }
-async function mediaPut(store,item){
- const db=await mediaDB();return new Promise((res,rej)=>{const q=db.transaction(store,'readwrite').objectStore(store).put(item);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})
+async function videos(){const a=await allMedia('media');c.innerHTML=`<div class="admin-card"><div class="kicker">Media studio</div><h2>Safari video library.</h2><p style="color:var(--muted)">Upload a real video file or paste a hosted video URL.</p><form id="videoForm"><div class="form-grid"><div class="field"><label>Video title</label><input id="videoTitle" required placeholder="Morning safari in Wilpattu"></div><div class="field"><label>Video file</label><input id="videoFile" type="file" accept="video/mp4,video/webm,video/quicktime"></div><div class="field full"><label>Hosted video URL (optional)</label><input id="videoUrl" placeholder="https://..."></div></div><div class="form-actions"><button class="btn primary">Publish video →</button></div><div class="success" id="videoMsg"></div></form></div><div class="admin-card"><div class="kicker">Published videos</div><div class="media-grid">${a.length?a.map(x=>`<div class="media-item"><video controls src="${x.src}"></video><h3>${esc(x.title)}</h3><div class="admin-actions"><span class="pill">${esc(x.status)}</span><button class="small-btn danger" onclick="videoDelete(${x.id})">Delete</button></div></div>`).join(''):'<div class="note">No videos yet.</div>'}</div></div>`;document.getElementById('videoForm').onsubmit=async e=>{e.preventDefault();const f=document.getElementById('videoFile').files[0],u=document.getElementById('videoUrl').value.trim();if(!f&&!u){document.getElementById('videoMsg').textContent='Choose a video file or enter a video URL.';return}const item={title:document.getElementById('videoTitle').value.trim(),kind:'video',src:f?await readFileData(f):u,status:'published',createdAt:new Date().toISOString()};await putMedia('media',item);videos()}}
+async function videoDelete(id){if(confirm('Delete this video?')){await delMedia('media',id);videos()}}
+function packages(){c.innerHTML=`<div class="admin-card"><div class="kicker">Package control</div><h2>Published safari packages</h2>${packs.map(p=>`<div class="admin-card" style="background:#0a130e"><b>${p[0]}</b><div class="simple-list-row"><span>${p[1]} · ${p[2]}</span><b>PRICE PENDING</b></div></div>`).join('')}<div class="note">Prices are per person. Park entry tickets are excluded.</div></div>`}
+async function logout(){if(window.supabaseClient) await window.supabaseClient.auth.signOut();location.reload()}
+async function adminLogin(){
+  const msg=document.getElementById('loginMsg');msg.textContent='';
+  const email=document.getElementById('adminEmail').value.trim();
+  const password=document.getElementById('adminPassword').value;
+  try{
+    const {data,error}=await window.supabaseClient.auth.signInWithPassword({email,password});
+    if(error) throw error;
+    const {data:admin,error:adminError}=await window.supabaseClient.from('admin_users').select('user_id,role').eq('user_id',data.user.id).maybeSingle();
+    if(adminError) throw adminError;
+    if(!admin || admin.role!=='admin') throw new Error('This account is not authorized for the Wilpattu Command Center.');
+    document.getElementById('login').style.display='none';document.getElementById('dashboard').style.display='block';overview();
+  }catch(err){console.error(err);msg.textContent=err.message||'Unable to sign in.'}
 }
-async function mediaDelete(store,id){
- const db=await mediaDB();return new Promise((res,rej)=>{const q=db.transaction(store,'readwrite').objectStore(store).delete(Number(id));q.onsuccess=()=>res();q.onerror=()=>rej(q.error)})
-}
-function readFile(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(file)})}
-
-function header(k,title,desc,buttons=''){
- return `<div class="head"><div><div class="eyebrow">${esc(k)}</div><h1>${esc(title)}</h1><p>${esc(desc)}</p></div><div class="actions">${buttons}</div></div>`
-}
-
-function dashboard(){
- const b=getBookings(), pending=b.filter(x=>String(x.status||'Pending')==='Pending').length;
- return header('WILPATTU SAFARI','Command Center','Everything you need to manage the safari experience.')
- +`<section class="grid4">
-   <div class="stat"><div class="label">Total bookings</div><div class="num">${b.length}</div></div>
-   <div class="stat"><div class="label">Pending</div><div class="num">${pending}</div></div>
-   <div class="stat"><div class="label">Confirmed</div><div class="num">${b.filter(x=>x.status==='Confirmed').length}</div></div>
-   <div class="stat"><div class="label">Completed</div><div class="num">${b.filter(x=>x.status==='Completed').length}</div></div>
- </section>
- <section class="card"><div class="kicker">QUICK ACTIONS</div><h2>Manage Wilpattu</h2><div class="quick">
-   <button data-page-jump="bookings"><b>Booking Management</b><small>Accept, complete, message or delete requests.</small></button>
-   <button data-page-jump="stories"><b>Traveller Stories</b><small>Review customer photos and reviews before publishing.</small></button>
-   <button data-page-jump="videos"><b>Safari Experiences</b><small>Upload and publish safari videos.</small></button>
- </div></section>
- <section class="card"><div class="kicker">RECENT BOOKINGS</div><h2>Latest requests</h2><div id="recent">${b.length?b.slice().reverse().slice(0,5).map(miniBooking).join(''):'<div class="empty">No booking requests yet.</div>'}</div></section>`;
-}
-function miniBooking(x){
- return `<div style="display:flex;justify-content:space-between;gap:15px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.055)">
-   <div><b>${esc(x.name||'Traveller')}</b><div class="muted">${esc(x.package||'Safari')} · ${esc(x.date||'Date not set')}</div></div>${statusPill(x.status)}
- </div>`;
-}
-
-function bookings(){
- const data=getBookings();
- return header('BOOKING MANAGEMENT','Safari bookings','Accept, complete, message or delete each request.','<button class="small-btn" data-page-jump="dashboard">← Dashboard</button>')
- +`<section class="card"><div class="toolbar"><input id="bsearch" placeholder="Search reference, name, WhatsApp, pickup…"><select id="bfilter"><option value="">All statuses</option><option>Pending</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option></select></div><div id="btable"></div></section>`;
-}
-function paintBookings(){
- const data=getBookings(),q=($('#bsearch')?.value||'').toLowerCase(),f=$('#bfilter')?.value||'';
- const rows=data.slice().reverse().filter(x=>{const h=[x.id,x.name,x.whatsapp,x.email,x.pickup,x.package,x.notes].join(' ').toLowerCase();return(!q||h.includes(q))&&(!f||String(x.status||'Pending')===f)});
- $('#btable').innerHTML=rows.length?`<div class="table-wrap"><table class="table"><thead><tr><th>Reference</th><th>Traveller</th><th>Safari</th><th>Date / guests</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows.map(x=>`<tr>
- <td><strong>${esc(x.id||'—')}</strong><br><span class="muted">${esc(x.createdAt||'')}</span></td>
- <td><strong>${esc(x.name||'Traveller')}</strong><br><span class="muted">${esc(x.whatsapp||'')} ${esc(x.email||'')}</span></td>
- <td>${esc(x.package||'—')}<br><span class="muted">${esc(x.pickup||'—')}</span></td>
- <td>${esc(x.date||'—')}<br>${esc(x.guests||'—')} guest(s)</td>
- <td>${statusPill(x.status)}</td>
- <td><div class="actions">
-   <button class="small-btn" data-book="view" data-id="${esc(x.id)}">View</button>
-   ${x.status!=='Confirmed'?'<button class="small-btn success" data-book="status" data-id="'+esc(x.id)+'" data-status="Confirmed">Accept</button>':''}
-   ${x.status!=='Completed'?'<button class="small-btn" data-book="status" data-id="'+esc(x.id)+'" data-status="Completed">Complete</button>':''}
-   ${wa(x.whatsapp)}
-   <button class="small-btn danger" data-book="delete" data-id="${esc(x.id)}">Delete</button>
- </div></td>
- </tr>`).join('')}</tbody></table></div>`:'<div class="empty">No booking requests match your filters.</div>';
-}
-function viewBooking(id){
- const x=getBookings().find(v=>v.id===id);if(!x)return;
- $('#modal').innerHTML=`<div class="modal-bg"><div class="modal"><div class="head"><div><div class="eyebrow">BOOKING DETAILS</div><h2>${esc(x.id||'Booking')}</h2></div><button class="small-btn" data-close>Close</button></div>
- <div class="detailgrid">${[['Traveller',x.name],['WhatsApp',x.whatsapp],['Email',x.email],['Package',x.package],['Date',x.date],['Guests',x.guests],['Pickup',x.pickup],['Time',packageTime(x.package)]].map(d=>`<div class="detail"><small>${esc(d[0])}</small><strong>${esc(d[1]||'—')}</strong></div>`).join('')}</div>
- <div class="detail" style="margin-top:10px"><small>Notes</small><strong>${esc(x.notes||'No additional requests')}</strong></div>
- <div class="actions" style="margin-top:15px">${wa(x.whatsapp)}<button class="small-btn" data-book="status" data-id="${esc(x.id)}" data-status="Confirmed">Accept</button><button class="small-btn" data-book="status" data-id="${esc(x.id)}" data-status="Completed">Complete</button></div>
- </div></div>`;
-}
-function packageTime(n){if(n==='Half-Safari (Morning)')return'6:00 AM – 10:00 AM';if(n==='Half-Safari (Evening)')return'2:00 PM – 6:00 PM';return'Morning – Evening'}
-
-async function stories(){
- const a=(await mediaAll('reviews')).sort((x,y)=>String(y.createdAt||'').localeCompare(String(x.createdAt||'')));
- return header('TRAVELLER COMMUNITY','Customer stories','Approve, reject or delete customer photo and review submissions.')
- +`<section class="card"><div id="storiesList">${a.length?a.map(story).join(''):'<div class="empty">No customer stories submitted yet.</div>'}</div></section>`;
-}
-function story(x){
- return `<div class="story">${x.photo?`<img src="${esc(x.photo)}" alt="">`:'<div class="empty" style="padding:20px">No photo</div>'}<div><b>${esc(x.name||'Traveller')}</b><p class="muted">${esc(x.review||x.caption||'')}</p>${statusPill(x.status||'pending')}</div><div class="actions">
- ${x.status!=='approved'?`<button class="small-btn success" data-story="status" data-id="${x.id}" data-status="approved">Approve</button>`:''}
- ${x.status!=='rejected'?`<button class="small-btn" data-story="status" data-id="${x.id}" data-status="rejected">Reject</button>`:''}
- <button class="small-btn danger" data-story="delete" data-id="${x.id}">Delete</button></div></div>`;
-}
-
-async function videos(){
- const a=(await mediaAll('media')).sort((x,y)=>String(y.createdAt||'').localeCompare(String(x.createdAt||'')));
- return header('MEDIA STUDIO','Safari videos','Upload a real safari video or publish a hosted video URL.')
- +`<section class="card"><div class="kicker">ADD VIDEO</div><h2>Safari Experiences</h2>
- <form id="videoForm"><div class="form-grid"><div class="field"><label>Video title</label><input id="vtitle" required placeholder="Morning safari in Wilpattu"></div><div class="field"><label>Video file</label><input id="vfile" type="file" accept="video/mp4,video/webm,video/quicktime"></div><div class="field full"><label>Hosted video URL (optional)</label><input id="vurl" placeholder="https://..."></div></div><div class="form-actions"><button class="btn primary">Publish video</button></div></form></section>
- <section class="card"><div class="kicker">PUBLISHED MEDIA</div><div>${a.length?a.map(video).join(''):'<div class="empty">No safari videos yet.</div>'}</div></section>`;
-}
-function video(x){
- return `<div class="video"><video controls src="${esc(x.src||x.url||'')}"></video><div><b>${esc(x.title||'Safari video')}</b><p class="muted">${esc(x.createdAt||'')}</p>${statusPill('published')}</div><div class="actions"><button class="small-btn danger" data-video="delete" data-id="${x.id}">Delete</button></div></div>`;
-}
-
-function packages(){
- const p=[
-  ['Half-Safari (Morning)','6:00 AM – 10:00 AM','4 hours',['Hotel pickup around Anuradhapura','Wilpattu National Park safari','Breakfast included','Hotel drop-off around Anuradhapura']],
-  ['Half-Safari (Evening)','2:00 PM – 6:00 PM','4 hours',['Hotel pickup around Anuradhapura','Wilpattu National Park safari','Hotel drop-off around Anuradhapura']],
-  ['Full Safari','Morning – Evening','Full safari',['Wilpattu National Park safari','Full-day safari experience','Park entry ticket purchased separately by guest']]
- ];
- return header('PACKAGE CONTROL','Safari packages','The three Wilpattu experiences currently published on the website.')
- +`<section class="grid3">${p.map(x=>`<article class="package"><div class="kicker">SAFARI EXPERIENCE</div><h2>${esc(x[0])}</h2><div class="time">${esc(x[1])} · ${esc(x[2])}</div><ul>${x[3].map(i=>'<li>'+esc(i)+'</li>').join('')}</ul><span class="pill pending">PRICE PENDING · PER PERSON</span></article>`).join('')}</section>
- <section class="card"><div class="kicker">PACKAGE NOTE</div><p class="muted">Full Safari park entry tickets are excluded and purchased separately by the guest. Final package prices can be added here later without changing the website structure.</p></section>`;
-}
-function settings(){
- return header('SYSTEM','Admin settings','Basic command-center information.')
- +`<section class="grid2"><div class="card"><div class="kicker">BUSINESS</div><h2>Elishah Rides</h2><p class="muted">Wilpattu Safari · Sri Lanka</p><p class="muted">WhatsApp: +94 77 352 3762<br>Email: elishahrides@gmail.com</p></div>
- <div class="card"><div class="kicker">ADMIN ACCESS</div><h2>Direct access mode</h2><p class="muted">This admin page intentionally has no email/password login, as requested. Keep this page private and do not publish its direct URL publicly.</p></div></section>`;
-}
-
-async function render(page=current){
- current=page;
- document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
- let content='';
- if(page==='dashboard')content=dashboard();
- if(page==='bookings')content=bookings();
- if(page==='stories')content=await stories();
- if(page==='videos')content=await videos();
- if(page==='packages')content=packages();
- if(page==='settings')content=settings();
- $('#main').innerHTML=content;
- if(page==='bookings'){paintBookings();$('#bsearch').addEventListener('input',paintBookings);$('#bfilter').addEventListener('change',paintBookings)}
- if(page==='videos')$('#videoForm').addEventListener('submit',saveVideo);
-}
-async function saveVideo(e){
- e.preventDefault();
- const file=$('#vfile').files[0],url=$('#vurl').value.trim();
- if(!file&&!url){toast('Choose a video file or enter a hosted URL');return}
- const src=file?await readFile(file):url;
- await mediaPut('media',{title:$('#vtitle').value.trim(),kind:'video',src,status:'published',createdAt:new Date().toISOString()});
- toast('Safari video published');render('videos');
-}
-function nav(page){render(page)}
-function bookingAction(type,id,status){
- const a=getBookings(),x=a.find(v=>v.id===id);if(!x)return;
- if(type==='delete'){if(!confirm('Delete this booking?'))return;saveBookings(a.filter(v=>v.id!==id));toast('Booking deleted')}
- else if(type==='status'){x.status=status;saveBookings(a);toast('Booking marked '+status)}
- else if(type==='view'){viewBooking(id);return}
- render('bookings');
-}
-document.addEventListener('click',async e=>{
- const navb=e.target.closest('[data-page]');if(navb){nav(navb.dataset.page);return}
- const jump=e.target.closest('[data-page-jump]');if(jump){nav(jump.dataset.pageJump);return}
- if(e.target.closest('#refresh')){render(current);toast('Admin refreshed');return}
- if(e.target.closest('[data-close]')){$('#modal').innerHTML='';return}
- const b=e.target.closest('[data-book]');if(b){bookingAction(b.dataset.book,b.dataset.id,b.dataset.status);return}
- const s=e.target.closest('[data-story]');if(s){const all=await mediaAll('reviews'),x=all.find(v=>String(v.id)===String(s.dataset.id));if(!x)return;if(s.dataset.story==='delete'){if(!confirm('Delete this customer story?'))return;await mediaDelete('reviews',x.id);toast('Customer story deleted')}else{x.status=s.dataset.status;await mediaPut('reviews',x);toast('Story '+s.dataset.status)}render('stories');return}
- const v=e.target.closest('[data-video]');if(v){if(!confirm('Delete this video?'))return;await mediaDelete('media',v.dataset.id);toast('Video deleted');render('videos')}
-});
-render();
-</script>
-</body>
-</html>
+document.getElementById('loginBtn').onclick=adminLogin;
+window.supabaseClient.auth.getSession().then(async ({data})=>{if(!data.session)return;const {data:admin}=await window.supabaseClient.from('admin_users').select('user_id,role').eq('user_id',data.session.user.id).maybeSingle();if(admin?.role==='admin'){document.getElementById('login').style.display='none';document.getElementById('dashboard').style.display='block';overview()}});
+</script></body></html>

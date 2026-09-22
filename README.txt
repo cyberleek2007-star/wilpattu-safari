@@ -72,3 +72,12 @@ V7 ADMIN + CUSTOMER MEDIA
 - Admin video upload or hosted video URL; published videos appear on Safari Experiences.
 - Browser-local IndexedDB is used in this static build. A real shared production backend (Supabase Storage/Database) should be connected before launch so submissions work across different devices.
 - WhatsApp: +94 77 352 3762.
+
+V8 CUSTOMER STORIES + SUPABASE
+- Gallery now has a customer rating (1–5 stars), comment/review and photo upload form.
+- Customer submissions are stored in Supabase as pending until admin approval.
+- Approved stories appear publicly on Gallery with the rating and photo.
+- Admin > Customer stories is connected to Supabase and supports Accept, Reject and Delete.
+- Traveller photos are stored in the Supabase Storage bucket `traveller-stories`.
+- Run `wilpattu-community-schema.sql` once in the Wilpattu Supabase SQL Editor before deploying this version.
+- Admin login uses the Supabase Auth account and the existing `admin_users` table.
