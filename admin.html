@@ -6,7 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script>
 let sb=null;
 const $=s=>document.querySelector(s); const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-async function init(){await window.supabaseConfigReady;const cfg=window.supabaseConfig||{};if(!cfg.url||!cfg.anonKey)throw new Error('Supabase configuration is missing.');sb=window.supabase.createClient(cfg.url,cfg.anonKey);const {data:{session}}=await sb.auth.getSession();if(session)await enterIfAdmin(session.user);}
+async function init(){if(!window.supabaseClient){throw new Error('Supabase client failed to initialize.');}sb=window.supabaseClient;const {data:{session}}=await sb.auth.getSession();if(session)await enterIfAdmin(session.user);}
 async function enterIfAdmin(user){const {data,error}=await sb.from('admin_users').select('user_id,role').eq('user_id',user.id).maybeSingle();if(error||!data||data.role!=='admin'){await sb.auth.signOut();return false}$('#login').style.display='none';$('#dashboard').style.display='block';await overview();return true}
 $('#loginForm').addEventListener('submit',async e=>{e.preventDefault();const m=$('#loginMsg');m.textContent='';m.className='login-msg';try{const {data,error}=await sb.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});if(error)throw error;if(!(await enterIfAdmin(data.user)))throw new Error('This account is not an authorized Wilpattu admin.');}catch(err){m.textContent=err.message||'Login failed.';m.className='login-msg status-bad'}});
 $('#logout').onclick=async()=>{await sb.auth.signOut();location.reload()};
